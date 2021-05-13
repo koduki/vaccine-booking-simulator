@@ -4,6 +4,7 @@ pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
 release.properties
+.mvn/wrapper/maven-wrapper.jar
 
 # Eclipse
 .project
@@ -37,3 +38,4 @@ nb-configuration.xml
 
 # Local environment
 .env
+__pycache__
