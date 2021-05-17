@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Load testing is key compornent to trust system reliability. However, it's required huge machine resouces to replay realworld traffic and it only one-time resources. So, It's difficult to secure such resouces permantetly.
+Load testing is key compornent to trust system reliability. However, it's required huge machine resouces to replay real world traffic and it only one-time resources. So, It's difficult to secure such resouces permantetly.
 This project provide flexible and elastic load testing with Locust and GKE Autopilot, thank for greate technology. We can just type few commands and distribute load.
 
 This project is based on [GoogleCloudPlatform/distributed-load-testing-using-kubernetes](https://github.com/GoogleCloudPlatform/distributed-load-testing-using-kubernetes).
