@@ -52,3 +52,15 @@ If you want to learn more about building native executables, please consult http
 REST is easy peasy with this Hello World RESTEasy resource.
 
 [Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
+
+
+## Build and Deploy to Cloud Run
+
+### Cloud Run
+
+```
+docker build -t gcr.io/support-tools-299121/vaccine-booking-simulator -f src/main/docker/Dockerfile.jvm .
+docker push gcr.io/support-tools-299121/vaccine-booking-simulator
+gcloud run deploy vaccine-booking-simulator --image gcr.io/support-tools-299121/vaccine-booking-simulator --region us-central1 --platform managed --allow-unauthenticated
+```
+
