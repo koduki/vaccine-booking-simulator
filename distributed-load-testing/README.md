@@ -75,6 +75,10 @@ If you need to extend pod size, you can type below command.
 kubectl scale deployment/locust-worker --replicas=20
 ```
 
+Node is also add automatically. But you need take care about limit of quotas.
+
+https://console.cloud.google.com/iam-admin/quotas
+
 ## Clean up
 
 After your testing, you should remove pod and cluster to reduce cost.
