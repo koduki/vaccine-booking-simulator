@@ -35,7 +35,7 @@ CLUSTER=load-test-cluster
 TARGET=${PROJECT}.appspot.com
 
 gcloud container clusters create-auto $CLUSTER --create-subnetwork name=gke --region us-central1
-gcloud container clusters get-credentials $CLUSTER--zone $ZONE --project $PROJECT
+gcloud container clusters get-credentials $CLUSTER --region $REGION --project $PROJECT
 ```
 
 ## Ship and Run

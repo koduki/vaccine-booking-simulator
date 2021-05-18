@@ -54,6 +54,12 @@ REST is easy peasy with this Hello World RESTEasy resource.
 [Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
 
 
+## Run MySQL for dev
+
+```bash
+docker run -it --name mysql --rm -e MYSQL_ROOT_PASSWORD=mysql -p 3306:3306 mysql
+```
+
 ## Build and Deploy to Cloud Run
 
 ### Cloud Run
