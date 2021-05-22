@@ -1,8 +1,6 @@
-# vaccine-booking-simulator project
+# booking-simulator
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
-
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+This project is simulator to estimate load of booking site. 
 
 ## Running the application in dev mode
 
@@ -11,62 +9,51 @@ You can run your application in dev mode that enables live coding using:
 ./mvnw compile quarkus:dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
-
 ## Packaging and running the application
 
 The application can be packaged using:
 ```shell script
-./mvnw package
-```
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
-
-If you want to build an _über-jar_, execute the following command:
-```shell script
-./mvnw package -Dquarkus.package.type=uber-jar
+./mvnw package && /mvnw package -Dquarkus.package.type=uber-jar
 ```
 
 The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
 
-## Creating a native executable
+## Build and Deploy to Cloud Run
 
-You can create a native executable using: 
-```shell script
-./mvnw package -Pnative
+Environment paramater
+
+```
+PROJECT=$(gcloud config get-value project)
+REGION=us-central1
+ZONE=${REGION}-b
+DB_PASS=abcd12345
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: 
-```shell script
-./mvnw package -Pnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/vaccine-booking-simulator-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.html.
-
-## Provided examples
-
-### RESTEasy JAX-RS example
-
-REST is easy peasy with this Hello World RESTEasy resource.
-
-[Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
-
-
-## Run MySQL for dev
+### Cloud SQL
 
 ```bash
-docker run -it --name mysql --rm -e MYSQL_ROOT_PASSWORD=mysql -p 3306:3306 mysql
+gcloud sql instances create pginstance --database-version=POSTGRES_12 --tier=db-custom-2-7680 --region=$REGION
+gcloud sql users set-password postgres --host=% --instance pginstance --password $DB_PASS
 ```
 
-## Build and Deploy to Cloud Run
+You can find custome instance tier from [here](https://cloud.google.com/sql/docs/mysql/instance-settings).
 
 ### Cloud Run
 
 ```
-docker build -t gcr.io/support-tools-299121/vaccine-booking-simulator -f src/main/docker/Dockerfile.jvm .
-docker push gcr.io/support-tools-299121/vaccine-booking-simulator
-gcloud run deploy vaccine-booking-simulator --image gcr.io/support-tools-299121/vaccine-booking-simulator --region us-central1 --platform managed --allow-unauthenticated
+./mvnw package && ./mvnw package -Dquarkus.package.type=uber-jar
+docker build -t gcr.io/${PROJECT}/vaccine-booking-simulator -f src/main/docker/Dockerfile.jvm . 
+docker push gcr.io/${PROJECT}/vaccine-booking-simulator
+
+gcloud run deploy vaccine-booking-simulator \
+  --image gcr.io/${PROJECT}/vaccine-booking-simulator \
+  --region ${REGION} \
+  --platform managed \
+  --allow-unauthenticated \
+  --add-cloudsql-instances ${PROJECT}:${REGION}:pginstance \
+  --update-env-vars INSTANCE_CONNECTION_NAME="${PROJECT}:${REGION}:pginstance"
+
+gcloud run services update vaccine-booking-simulator --region us-central1 --platform managed --update-env-vars QUARKUS_DATASOURCE_JDBC_URL="jdbc:postgresql:///exampledb?ipTypes=PUBLIC&cloudSqlInstance=${PROJRCT}:${REGION}:pginstance&socketFactory=com.google.cloud.sql.postgres.SocketFactory
+",QUARKUS_DATASOURCE_USERNAME=postgres,QUARKUS_DATASOURCE_PASSWORD=${DB_PASSWORD}
 ```
 
