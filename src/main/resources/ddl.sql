@@ -1,8 +1,8 @@
-CREATE TABLE `book` (
-	`id` INT NOT NULL AUTO_INCREMENT,
-	`date` DATE,
-	`user` VARCHAR(128),
-	`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	KEY `idx_date` (`date`) USING HASH,
-	PRIMARY KEY (`id`)
+CREATE TABLE book (
+	id SERIAL,
+	date DATE,
+	user_name VARCHAR(128),
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (id)
 );
+CREATE INDEX ON book(date);

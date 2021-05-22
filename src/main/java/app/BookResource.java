@@ -16,6 +16,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @Path("/book")
 public class BookResource {
@@ -23,7 +24,8 @@ public class BookResource {
     @Inject
     AgroalDataSource defaultDataSource;
 
-    static final int BOOKING_LIMIT_COUNT = 5;
+    @ConfigProperty(name = "app.booking.limit")
+    int bookingLimmitNumber;
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
@@ -41,26 +43,26 @@ public class BookResource {
         var date = params.get("date");
         var name = params.get("name");
 
-        var con = defaultDataSource.getConnection();
-
-        if (isAvailable(con, date)) {
-            if (addBooking(con, date, name)) {
-                return Response.ok(new ObjectMapper().writeValueAsString((Map.of(
-                        "status", "success",
-                        "name", name,
-                        "date", date
-                )))).build();
+        try ( var con = defaultDataSource.getConnection()) {
+            if (isAvailable(con, date)) {
+                if (addBooking(con, date, name)) {
+                    return Response.ok(new ObjectMapper().writeValueAsString((Map.of(
+                            "status", "success",
+                            "name", name,
+                            "date", date
+                    )))).build();
+                } else {
+                    return Response.ok(new ObjectMapper().writeValueAsString((Map.of(
+                            "status", "error",
+                            "message", "full"
+                    )))).build();
+                }
             } else {
                 return Response.ok(new ObjectMapper().writeValueAsString((Map.of(
                         "status", "error",
                         "message", "full"
                 )))).build();
             }
-        } else {
-            return Response.ok(new ObjectMapper().writeValueAsString((Map.of(
-                    "status", "error",
-                    "message", "full"
-            )))).build();
         }
     }
 
@@ -82,18 +84,19 @@ public class BookResource {
     }
 
     private boolean addBooking(Connection con, String date, String name) throws SQLException {
-        try ( var st = con.prepareStatement("INSERT INTO book (date, user) VALUES(?, ?)")) {
+        try ( var st = con.prepareStatement("INSERT INTO book (date, user_name) VALUES(?, ?)")) {
             st.setDate(1, Date.valueOf(date));
             st.setString(2, name);
             st.execute();
         }
 
-        try ( var st = con.prepareStatement("SELECT user FROM (SELECT user FROM book where date=? ORDER BY created_at LIMIT ?) as top where user=?;")) {
+        try ( var st = con.prepareStatement("SELECT user_name FROM (SELECT user_name FROM book where date=? ORDER BY created_at LIMIT ?) as top where user_name=?;")) {
             st.setDate(1, Date.valueOf(date));
-            st.setInt(2, BOOKING_LIMIT_COUNT);
+            st.setInt(2, bookingLimmitNumber);
             st.setString(3, name);
-            var rs = st.executeQuery();
-            return rs.next();
+            try ( var rs = st.executeQuery()) {
+                return rs.next();
+            }
         }
     }
 
@@ -103,7 +106,7 @@ public class BookResource {
             try ( var rs = st.executeQuery()) {
                 rs.next();
                 int count = rs.getInt(1);
-                return count < BOOKING_LIMIT_COUNT;
+                return count < bookingLimmitNumber;
             }
         }
     }

@@ -32,7 +32,6 @@ PROJECT=$(gcloud config get-value project)
 REGION=us-central1
 ZONE=${REGION}-b
 CLUSTER=load-test-cluster
-TARGET=${PROJECT}.appspot.com
 
 gcloud container clusters create-auto $CLUSTER --create-subnetwork name=gke --region us-central1
 gcloud container clusters get-credentials $CLUSTER --region $REGION --project $PROJECT
@@ -43,7 +42,7 @@ gcloud container clusters get-credentials $CLUSTER --region $REGION --project $P
 ### Build and Push Test-Task image
 
 ```bash
-docker build -t gcr.io/${PROJECT}/locust-tasks dockerfiles
+docker build -t gcr.io/${PROJECT}/locust-tasks load-tasks
 docker push gcr.io/${PROJECT}/locust-tasks
 ```
 
@@ -66,7 +65,7 @@ After running containers, please open Locust management console.
 
 ```bash
 EXTERNAL_IP=$(kubectl get svc locust-master -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
-open "http://${EXTERNAL_IP}:8089"
+echo "http://${EXTERNAL_IP}:8089"
 ```
 
 If you need to extend pod size, you can type below command.
