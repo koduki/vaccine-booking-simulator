@@ -33,7 +33,7 @@ REGION=us-central1
 ZONE=${REGION}-b
 CLUSTER=load-test-cluster
 
-gcloud container clusters create-auto $CLUSTER --create-subnetwork name=gke --region us-central1
+gcloud container clusters create-auto $CLUSTER --create-subnetwork name=gke --region $REGION 
 gcloud container clusters get-credentials $CLUSTER --region $REGION --project $PROJECT
 ```
 
@@ -71,7 +71,7 @@ echo "http://${EXTERNAL_IP}:8089"
 If you need to extend pod size, you can type below command.
 
 ```bash
-kubectl scale deployment/locust-worker --replicas=20
+kubectl scale deployment/locust-worker --replicas=10
 ```
 
 Node is also add automatically. But you need take care about limit of quotas.
