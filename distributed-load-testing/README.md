@@ -12,7 +12,8 @@ This project is based on [GoogleCloudPlatform/distributed-load-testing-using-kub
 You can find a test script from `dockerfiles/locust-tasks/tasks.py`. Please update for your target application. You can test a this script with `locustio/locust` container on your local PC. This project is also use this container.
 
 ```bash
-$ docker run -p 8089:8089 -v $PWD/locust-tasks:/locust-tasks locustio/locust -f /locust-tasks/tasks.py -H ${YOUR_TARGET_APPLICATION}
+$ YOUR_TARGET_URL=http://localhost:1234
+$ docker run -it -p 8089:8089 -v `pwd`/load-tasks/locust-scripts/:/locust-tasks locustio/locust -f /locust-tasks/tasks.py -H ${YOUR_TARGET_URL}
 ```
 
 ## Setup GKE environments
